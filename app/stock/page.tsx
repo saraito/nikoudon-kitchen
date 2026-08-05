@@ -90,6 +90,13 @@ export default function StockPage() {
   const [items, setItems] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const todayIsWE = useMemo(() => isWeekend(new Date().getDay()), []);
+  const todayLabel = useMemo(() => {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mo = String(d.getMonth() + 1).padStart(2, "0");
+    const day = d.toLocaleDateString("en-US", { weekday: "short" });
+    return `${dd}/${mo} (${day})`;
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -113,9 +120,12 @@ export default function StockPage() {
 
   return (
     <div className="p-4">
-      <p className="text-xs text-gray-500 mb-3">
-        Today is {todayIsWE ? "a Thu–Sat (WE)" : "a Sun–Wed (WD)"} target day — the matching column is bolded.
-      </p>
+      <div className="mb-3">
+        <div className="text-2xl font-bold tracking-tight">{todayLabel}</div>
+        <span className="inline-block mt-1 bg-gray-100 text-gray-500 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded">
+          {todayIsWE ? "Thu–Sat prep day" : "Sunday/weekdays prep day"}
+        </span>
+      </div>
       {loading && <p className="text-sm text-gray-500">Loading…</p>}
       {!loading && sections.length === 0 && (
         <p className="text-sm text-gray-500">No stock items yet. Add some in Staff Edit.</p>

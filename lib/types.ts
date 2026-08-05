@@ -2,6 +2,7 @@ export interface ChecklistItem {
   id: string;
   type: "opening" | "closing";
   label: string;
+  detail: string | null;
   is_checked: boolean;
   sort_order: number;
 }

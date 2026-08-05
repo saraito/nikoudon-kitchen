@@ -51,15 +51,26 @@ function Checklist({ type, title }: { type: "opening" | "closing"; title: string
       )}
       <ul className="divide-y divide-gray-200">
         {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-3 py-2">
+          <li key={item.id} className="flex items-start gap-3 py-2">
             <input
               type="checkbox"
               checked={item.is_checked}
               onChange={() => toggle(item)}
-              className="h-5 w-5 accent-black shrink-0"
+              className="h-5 w-5 accent-black shrink-0 mt-0.5"
             />
-            <span className={item.is_checked ? "line-through text-gray-400" : ""}>
-              {item.label}
+            <span>
+              <span className={item.is_checked ? "line-through text-gray-400" : ""}>
+                {item.label}
+              </span>
+              {item.detail && (
+                <span
+                  className={`block text-xs whitespace-pre-line mt-0.5 ${
+                    item.is_checked ? "text-gray-300" : "text-gray-500"
+                  }`}
+                >
+                  {item.detail}
+                </span>
+              )}
             </span>
           </li>
         ))}

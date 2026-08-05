@@ -6,27 +6,43 @@ truncate table menu_dishes restart identity cascade;
 truncate table menu_categories restart identity cascade;
 truncate table stock_items restart identity cascade;
 
-insert into checklist_items (type, label, sort_order) values
-('opening', 'Turn on rice cookers and start rice', 1),
-('opening', 'Check ground floor fridge & freezer temperatures', 2),
-('opening', 'Check basement walk-in & defrost fridge temperatures', 3),
-('opening', 'Prep dashi stock for the day', 4),
-('opening', 'Restock ground floor counter from basement stock', 5),
-('opening', 'Turn on tempura fryer oil and bring to temperature', 6),
-('opening', 'Set up sushi station (rice, nori, tools)', 7),
-('opening', 'Run through Stock Check tab for anything marked ''prep/fill/?'' from last night', 8),
-('opening', 'Wipe down and sanitize all prep surfaces', 9),
-('opening', 'Turn on POS / kitchen display system', 10),
-('closing', 'Go through Stock Check tab and mark prep / fill / ? for tomorrow', 1),
-('closing', 'Turn off fryers, rice cookers, and burners', 2),
-('closing', 'Cover and label all prepped ingredients with today''s date', 3),
-('closing', 'Move required items from basement defrost to walk-in for tomorrow (see [!] notes in Stock Check)', 4),
-('closing', 'Wipe down and sanitize all surfaces and equipment', 5),
-('closing', 'Empty and clean fryer oil filters', 6),
-('closing', 'Take out trash and recycling', 7),
-('closing', 'Restock basement items that ran low today', 8),
-('closing', 'Lock walk-in fridge and freezer doors', 9),
-('closing', 'Turn off lights and lock kitchen', 10);
+insert into checklist_items (type, label, detail, sort_order) values
+('opening', '鍵開け', 'セキュリティの解除', 1),
+('opening', '換気扇・電気スイッチ', 'バー奥のスイッチをオン', 2),
+('opening', '釜の水量確認・スイッチ', '水の量を確認し、スイッチを入れる', 3),
+('opening', 'うどん場の釜のスイッチ', '水の量を確認し、スイッチを入れる', 4),
+('opening', 'ネタケースのスイッチ', 'ネタケースのドレーンがバットに入っているか確認、スイッチを入れる', 5),
+('opening', 'フライヤーの確認', '洗浄のための水でないか確認、油の量の確認', 6),
+('opening', '仕込みリストの確認', '内容を確認（写メを取る、メモを取る）', 7),
+('opening', 'スープの冷蔵庫の確認', 'スープの不足がないか確認、不足分をチェック', 8),
+('opening', 'スープの保温', '5リットルの鍋にスープを保温する', 9),
+('opening', 'トッピング冷蔵庫の確認', 'トッピング、サラダ、調味料の不足分のチェック', 10),
+('opening', 'うどん場の冷蔵庫の確認', 'てんつゆの確認、手巻きネタの確認、しぐれ、土手煮、
+鴨、チャーシューなどの残量確認
+クレームブリュレの残数確認', 11),
+('opening', 'うどん場冷凍庫の確認', '枝豆、天かす、ゆず、餅アイスなどの残量チェック', 12),
+('opening', '天ぷらネタ冷蔵庫', '天ぷらの具の残量のチェック、牡蠣、ハリング等残量チェック', 13),
+('opening', '手巻きネタの確認', '冷蔵庫にしまってあるネタを確認、追加が必要なものを解凍', 14),
+('opening', 'ディッシュウォッシャー', '扉を締めた状態でスイッチを入れる', 15),
+('opening', '出汁の仕掛けの確認', 'IHに出汁がかかっているか確認、あれば厚削り、鯖節を入れ、温度を上げる', 16),
+('opening', 'シャリの確認', '冷蔵庫のシャリを確認し、使用分をレンジで加熱', 17),
+('opening', '炊飯の準備', '営業用のお込めの準備、炊飯（シャリ、予約状況で多く炊いたり、朝に洗米をして用意しておく）', 18),
+('opening', 'ウォークインの確認', '出汁の残や、食材の在庫、解凍などの状況を確認しておく（ビーガン出汁の鍋などがないか確認）', 19),
+('opening', '仕込みの準備', '仕込みリスト、確認した内容に応じて食材を準備', 20),
+('opening', '※緊急度が高いものがどれか確認し、欠品しないよう仕込みを進める', NULL, 21),
+('opening', '手巻きネタ', '解凍状況を確認し、必要なものを解凍（日付を記載）
+不足分を上階に上げる', 22),
+('opening', '炊飯', '準備したお米の炊飯', 23),
+('opening', '食材の補充と開店準備', '食材の補充を行い、フタ、ラップなどを外しておく', 24),
+('closing', '釜の洗浄（大）', '営業の状況によって洗浄、水を張る', 1),
+('closing', 'フライヤー', 'フライヤーの網などの洗浄
+油が汚れている場合、油を抜き、揚カスを取り除き、水を張る', 2),
+('closing', '釜の洗浄（うどん場）', NULL, 3),
+('closing', '寿司・刺身ネタの収納', '金属プレートに記載の日付を包んで収納したネタに記載する', 4),
+('closing', '冷蔵庫への収納', '時雨煮、土手煮、赤出汁、天つゆを冷蔵庫へ', 5),
+('closing', '床の掃除（うどん場）', NULL, 6),
+('closing', '床の掃除（地下）', NULL, 7),
+('closing', '仕込みの確認', '翌日の仕込みの作業内容を記載', 8);
 
 insert into stock_items (section, name, gf_par_wd, gf_par_we, gf_unit, bw_par_wd, bw_par_we, bw_unit, bd_par_wd, bd_par_we, bd_unit, closing_options, closing_status, note, sort_order) values
 ('Tempura', 'Shrimp', '2', '3', 'box', NULL, NULL, NULL, '4', '4', 'pack', 'prep/fill/unsure', '', '[!] Move the same number of frozen ones to the walk-in when using a defrosted one x4', 1),

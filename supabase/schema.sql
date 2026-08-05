@@ -5,6 +5,7 @@ create table if not exists checklist_items (
   id uuid primary key default gen_random_uuid(),
   type text not null check (type in ('opening','closing')),
   label text not null,
+  detail text,
   is_checked boolean not null default false,
   sort_order int not null default 0,
   created_at timestamptz not null default now()
