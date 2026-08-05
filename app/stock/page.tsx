@@ -77,9 +77,9 @@ function StockRow({ item, todayIsWE }: { item: StockItem; todayIsWE: boolean }) 
         )}
       </div>
       <div className="grid grid-cols-3 gap-2 mt-2">
-        <ParCell label="Ground floor" wd={item.gf_par_wd} we={item.gf_par_we} unit={item.gf_unit} todayIsWE={todayIsWE} />
-        <ParCell label="Basement walk-in" wd={item.bw_par_wd} we={item.bw_par_we} unit={item.bw_unit} todayIsWE={todayIsWE} />
-        <ParCell label="Basement defrost" wd={item.bd_par_wd} we={item.bd_par_we} unit={item.bd_unit} todayIsWE={todayIsWE} />
+        <ParCell label="Upstairs" wd={item.gf_par_wd} we={item.gf_par_we} unit={item.gf_unit} todayIsWE={todayIsWE} />
+        <ParCell label="Downstairs walk-in" wd={item.bw_par_wd} we={item.bw_par_we} unit={item.bw_unit} todayIsWE={todayIsWE} />
+        <ParCell label="Defrost needed" wd={item.bd_par_wd} we={item.bd_par_we} unit={item.bd_unit} todayIsWE={todayIsWE} />
       </div>
       {item.note && <p className="text-xs text-gray-500 italic mt-2">{item.note}</p>}
     </li>

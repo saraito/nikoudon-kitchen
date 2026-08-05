@@ -11,7 +11,6 @@ const tabs = [
 
 export default function TabNav() {
   const pathname = usePathname();
-  const isAdmin = pathname?.startsWith("/admin");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-black">
@@ -31,13 +30,6 @@ export default function TabNav() {
           );
         })}
       </div>
-      {!isAdmin && (
-        <div className="text-center border-t border-gray-200 py-1">
-          <Link href="/admin" className="text-[11px] text-gray-400 uppercase tracking-widest">
-            Staff edit
-          </Link>
-        </div>
-      )}
     </nav>
   );
 }

@@ -41,17 +41,17 @@ function StockForm({
       <input className={inputCls()} placeholder="Section (e.g. Tempura)" value={form.section} onChange={(e) => set("section", e.target.value)} />
       <input className={inputCls()} placeholder="Item name" value={form.name} onChange={(e) => set("name", e.target.value)} />
 
-      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Ground floor (upstairs)</div>
+      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Upstairs</div>
       <input className={inputCls()} placeholder="Par WD" value={form.gf_par_wd} onChange={(e) => set("gf_par_wd", e.target.value)} />
       <input className={inputCls()} placeholder="Par WE" value={form.gf_par_we} onChange={(e) => set("gf_par_we", e.target.value)} />
       <input className={inputCls() + " col-span-2"} placeholder="Unit (box/bottle/pack…)" value={form.gf_unit} onChange={(e) => set("gf_unit", e.target.value)} />
 
-      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Basement walk-in</div>
+      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Downstairs walk-in</div>
       <input className={inputCls()} placeholder="Par WD" value={form.bw_par_wd} onChange={(e) => set("bw_par_wd", e.target.value)} />
       <input className={inputCls()} placeholder="Par WE" value={form.bw_par_we} onChange={(e) => set("bw_par_we", e.target.value)} />
       <input className={inputCls() + " col-span-2"} placeholder="Unit" value={form.bw_unit} onChange={(e) => set("bw_unit", e.target.value)} />
 
-      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Basement defrost</div>
+      <div className="col-span-2 text-[10px] uppercase tracking-widest text-gray-400 mt-1">Defrost needed</div>
       <input className={inputCls()} placeholder="Par WD" value={form.bd_par_wd} onChange={(e) => set("bd_par_wd", e.target.value)} />
       <input className={inputCls()} placeholder="Par WE" value={form.bd_par_we} onChange={(e) => set("bd_par_we", e.target.value)} />
       <input className={inputCls() + " col-span-2"} placeholder="Unit" value={form.bd_unit} onChange={(e) => set("bd_unit", e.target.value)} />

@@ -4,6 +4,7 @@ export interface ChecklistItem {
   label: string;
   detail: string | null;
   is_checked: boolean;
+  is_archived: boolean;
   sort_order: number;
 }
 
@@ -23,6 +24,7 @@ export interface StockItem {
   closing_options: string;
   closing_status: string;
   note: string | null;
+  is_archived: boolean;
   sort_order: number;
 }
 
@@ -42,5 +44,6 @@ export interface MenuDish {
   serving: string | null;
   prep: string | null;
   image_path: string | null;
+  is_archived: boolean;
   sort_order: number;
 }

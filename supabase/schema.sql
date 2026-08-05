@@ -7,6 +7,7 @@ create table if not exists checklist_items (
   label text not null,
   detail text,
   is_checked boolean not null default false,
+  is_archived boolean not null default false,
   sort_order int not null default 0,
   created_at timestamptz not null default now()
 );
@@ -27,6 +28,7 @@ create table if not exists stock_items (
   closing_options text not null default 'prep/fill/unsure',
   closing_status text not null default '',
   note text,
+  is_archived boolean not null default false,
   sort_order int not null default 0,
   created_at timestamptz not null default now()
 );
@@ -47,6 +49,7 @@ create table if not exists menu_dishes (
   serving text,
   prep text,
   image_path text,
+  is_archived boolean not null default false,
   sort_order int not null default 0
 );
 
@@ -70,3 +73,21 @@ create policy "public all menu_categories" on menu_categories for all using (tru
 
 drop policy if exists "public all menu_dishes" on menu_dishes;
 create policy "public all menu_dishes" on menu_dishes for all using (true) with check (true);
+
+-- Storage bucket for dish photos uploaded from the Menu edit screen.
+-- Same prototype access model as above: public read/write, no auth scoping yet.
+insert into storage.buckets (id, name, public)
+values ('dish-images', 'dish-images', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public read dish-images" on storage.objects;
+create policy "public read dish-images" on storage.objects for select using (bucket_id = 'dish-images');
+
+drop policy if exists "public insert dish-images" on storage.objects;
+create policy "public insert dish-images" on storage.objects for insert with check (bucket_id = 'dish-images');
+
+drop policy if exists "public update dish-images" on storage.objects;
+create policy "public update dish-images" on storage.objects for update using (bucket_id = 'dish-images');
+
+drop policy if exists "public delete dish-images" on storage.objects;
+create policy "public delete dish-images" on storage.objects for delete using (bucket_id = 'dish-images');
