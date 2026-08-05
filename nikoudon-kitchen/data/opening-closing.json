@@ -1,0 +1,16 @@
+{
+  "opening": [
+    { "id": "o1", "task": "Lorem ipsum — turn on dashi and soup bases", "order": 1 },
+    { "id": "o2", "task": "Lorem ipsum — check fridge and freezer temps (upstairs + basement)", "order": 2 },
+    { "id": "o3", "task": "Lorem ipsum — set up counter mise en place", "order": 3 },
+    { "id": "o4", "task": "Lorem ipsum — run through stock check list before service", "order": 4 },
+    { "id": "o5", "task": "Lorem ipsum — verify fryer oil and tempura batter", "order": 5 }
+  ],
+  "closing": [
+    { "id": "c1", "task": "Lorem ipsum — label and date all prep containers", "order": 1 },
+    { "id": "c2", "task": "Lorem ipsum — complete stock closing marks (prep / fill / ?)", "order": 2 },
+    { "id": "c3", "task": "Lorem ipsum — clean fryer, filter oil, wipe down stations", "order": 3 },
+    { "id": "c4", "task": "Lorem ipsum — move defrost items to walk-in as noted", "order": 4 },
+    { "id": "c5", "task": "Lorem ipsum — lock basement, set alarms", "order": 5 }
+  ]
+}
