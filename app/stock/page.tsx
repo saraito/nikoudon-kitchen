@@ -413,7 +413,9 @@ export default function StockPage() {
     const updates = reordered.map((item, idx) => ({ id: item.id, sort_order: sortValues[idx] }));
     setItems((prev) => {
       const map = new Map(updates.map((u) => [u.id, u.sort_order]));
-      return prev.map((i) => (map.has(i.id) ? { ...i, sort_order: map.get(i.id)! } : i));
+      return prev
+        .map((i) => (map.has(i.id) ? { ...i, sort_order: map.get(i.id)! } : i))
+        .sort((a, b) => a.sort_order - b.sort_order);
     });
     await Promise.all(updates.map((u) => supabase.from("stock_items").update({ sort_order: u.sort_order }).eq("id", u.id)));
   }
