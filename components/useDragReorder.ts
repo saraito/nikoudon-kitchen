@@ -8,7 +8,12 @@ interface Sortable {
 
 export interface DragHandleProps {
   onPointerDown: (e: React.PointerEvent) => void;
-  style: { touchAction: "none" };
+  style: {
+    touchAction: "none";
+    WebkitUserSelect: "none";
+    userSelect: "none";
+    WebkitTouchCallout: "none";
+  };
 }
 
 /**
@@ -39,6 +44,12 @@ export function useDragReorder<T extends Sortable>(
     return {
       onPointerDown: (e: React.PointerEvent) => {
         e.preventDefault();
+        const handle = e.currentTarget as HTMLElement;
+        try {
+          handle.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore — unsupported pointer type, falls back to document listeners
+        }
         draggingRef.current = true;
         setDraggingId(id);
         dragOrderRef.current = order;
@@ -65,6 +76,12 @@ export function useDragReorder<T extends Sortable>(
         function onUp() {
           document.removeEventListener("pointermove", onMove);
           document.removeEventListener("pointerup", onUp);
+          document.removeEventListener("pointercancel", onUp);
+          try {
+            handle.releasePointerCapture(e.pointerId);
+          } catch {
+            // already released
+          }
           draggingRef.current = false;
           setDraggingId(null);
           onPersist(dragOrderRef.current);
@@ -72,8 +89,14 @@ export function useDragReorder<T extends Sortable>(
 
         document.addEventListener("pointermove", onMove);
         document.addEventListener("pointerup", onUp);
+        document.addEventListener("pointercancel", onUp);
       },
-      style: { touchAction: "none" as const },
+      style: {
+        touchAction: "none" as const,
+        WebkitUserSelect: "none" as const,
+        userSelect: "none" as const,
+        WebkitTouchCallout: "none" as const,
+      },
     };
   }
 
