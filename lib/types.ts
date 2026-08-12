@@ -24,6 +24,8 @@ export interface StockItem {
   closing_options: string;
   closing_status: string;
   note: string | null;
+  prep_note: string | null;
+  prep_image: string | null;
   is_archived: boolean;
   sort_order: number;
 }

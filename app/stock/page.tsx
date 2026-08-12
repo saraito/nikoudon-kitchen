@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { StockItem } from "@/lib/types";
 import Accordion from "@/components/Accordion";
 import MeatballMenu from "@/components/MeatballMenu";
+import DishImageBox from "@/components/DishImageBox";
+import RichTextEditor from "@/components/RichTextEditor";
 import { useEditMode } from "@/components/EditMode";
 import { useDragReorder, DragHandleProps } from "@/components/useDragReorder";
 
@@ -25,8 +27,10 @@ const emptyForm = {
   bd_par_wd: "",
   bd_par_we: "",
   bd_unit: "",
-  closing_options: "prep/fill/unsure",
+  closing_options: "prep/fill/check",
   note: "",
+  prep_note: "",
+  prep_image: "",
 };
 
 type FormT = typeof emptyForm;
@@ -46,7 +50,26 @@ function toForm(item: StockItem): FormT {
     bd_unit: item.bd_unit ?? "",
     closing_options: item.closing_options,
     note: item.note ?? "",
+    prep_note: item.prep_note ?? "",
+    prep_image: item.prep_image ?? "",
   };
+}
+
+function SnowflakeIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 -960 960 960" fill="currentColor">
+      <path d="M460-100v-96.08l-82.46 68.62-25.85-30.23L460-248.77v-195.85l-170.46 97.54-24.69 139-39.77-7.07 19.61-106.08-84 49.31-20-35.16 84-48.54-101.31-35.92 13.93-37.31 132.23 47.16L439.23-480l-169.69-97.54-132.23 47.39-13.93-37.54 101.31-35.69-84-48.54 20-35.16 84 49.31-19.61-106.08 39.77-7.07 24.69 139L460-514.38v-195.85l-108.31-91.08 25.85-30.23L460-762.92V-860h40v97.08l81.69-68.62 25.85 30.23L500-710.23v195.85l169.46-97.54 24.69-139 39.77 7.07-19.61 106.08 84-49.31 20 35.16-84 48.54 101.31 35.69-13.93 37.54-132.23-47.39L520-480l169.46 98.31 132.23-47.16 13.93 37.31-101.31 35.92 84 48.54-20 35.16-84-49.31 19.61 106.08-39.77 7.07-24.69-139L500-444.62v195.85l107.54 91.08-25.85 30.23L500-196.08V-100h-40Z" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 6c-1.5-1.2-4-2-7-2v14c3 0 5.5.8 7 2 1.5-1.2 4-2 7-2V4c-3 0-5.5.8-7 2Z" />
+      <path d="M12 6v14" />
+    </svg>
+  );
 }
 
 function inputCls() {
@@ -74,11 +97,13 @@ function DragHandle(props: DragHandleProps) {
 }
 
 function StockForm({
+  itemId,
   initial,
   lockSection,
   onSave,
   onCancel,
 }: {
+  itemId: string;
   initial: FormT;
   lockSection?: boolean;
   onSave: (v: FormT) => void;
@@ -126,12 +151,31 @@ function StockForm({
       <input className={inputCls() + " col-span-2"} placeholder="Unit" value={form.bd_unit} onChange={(e) => set("bd_unit", e.target.value)} />
 
       <input
-        className={inputCls()}
-        placeholder="Closing options e.g. prep/fill/unsure"
+        className={inputCls() + " col-span-2"}
+        placeholder="Closing options e.g. prep/fill/check"
         value={form.closing_options}
         onChange={(e) => set("closing_options", e.target.value)}
       />
-      <input className={inputCls()} placeholder="Note" value={form.note} onChange={(e) => set("note", e.target.value)} />
+      <input className={inputCls() + " col-span-2"} placeholder="Note" value={form.note} onChange={(e) => set("note", e.target.value)} />
+
+      <div className="col-span-2 mt-1">
+        <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Prep instruction photo</div>
+        <DishImageBox
+          dishId={itemId}
+          value={form.prep_image || null}
+          alt={form.name || "prep instruction"}
+          onChange={(path) => set("prep_image", path)}
+        />
+      </div>
+      <div className="col-span-2">
+        <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Prep instruction</div>
+        <RichTextEditor
+          uploadId={itemId}
+          value={form.prep_note}
+          onChange={(html) => set("prep_note", html)}
+          placeholder="How to prep this item…"
+        />
+      </div>
 
       <div className="col-span-2 flex gap-2 mt-1">
         <button onClick={() => onSave(form)} className="bg-black text-white text-sm px-3 py-1">
@@ -147,12 +191,14 @@ function StockForm({
 
 function ParCell({
   label,
+  topLabel,
   wd,
   we,
   unit,
   todayIsWE,
 }: {
   label: string;
+  topLabel: React.ReactNode;
   wd: string | null;
   we: string | null;
   unit: string | null;
@@ -160,19 +206,29 @@ function ParCell({
 }) {
   if (!wd && !we && !unit) {
     return (
-      <div className="text-xs text-gray-300">
-        <div className="uppercase tracking-wide text-gray-400 mb-0.5">{label}</div>—
+      <div className="flex flex-col items-center text-gray-300" title={label} aria-label={label}>
+        <div className="flex items-center gap-0.5 text-[10px] font-medium">{topLabel}</div>
       </div>
     );
   }
   return (
-    <div className="text-xs">
-      <div className="uppercase tracking-wide text-gray-400 mb-0.5">{label}</div>
-      <div className="flex gap-2">
-        <span className={!todayIsWE && wd ? "font-semibold text-black" : "text-gray-400"}>WD {wd || "–"}</span>
-        <span className={todayIsWE && we ? "font-semibold text-black" : "text-gray-400"}>WE {we || "–"}</span>
+    <div className="flex flex-col items-center" title={label} aria-label={label}>
+      <div className="flex items-center gap-0.5 text-[10px] text-gray-400 font-medium">{topLabel}</div>
+      <div className="flex gap-1.5 mt-0.5">
+        <div className="flex flex-col items-center">
+          <span className="text-[8px] text-gray-400 uppercase tracking-wide">WD</span>
+          <span className={`text-lg leading-tight ${!todayIsWE && wd ? "font-bold text-black" : "font-normal text-gray-300"}`}>
+            {wd || "–"}
+          </span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-[8px] text-gray-400 uppercase tracking-wide">WE</span>
+          <span className={`text-lg leading-tight ${todayIsWE && we ? "font-bold text-black" : "font-normal text-gray-300"}`}>
+            {we || "–"}
+          </span>
+        </div>
       </div>
-      {unit && <div className="text-gray-500">{unit}</div>}
+      {unit && <div className="text-[9px] text-gray-500 text-center mt-0.5 leading-snug">{unit}</div>}
     </div>
   );
 }
@@ -197,22 +253,61 @@ function StockRow({
   onArchive: () => void;
 }) {
   const [status, setStatus] = useState(item.closing_status || "");
+  const [showPrep, setShowPrep] = useState(false);
   const options = item.closing_options ? item.closing_options.split("/").map((s) => s.trim()) : [];
+  const hasPrep = !!(item.prep_note || item.prep_image);
 
   async function updateStatus(value: string) {
     setStatus(value);
     await supabase.from("stock_items").update({ closing_status: value }).eq("id", item.id);
   }
 
+  const bgClass =
+    status === "prep" || status === "buy"
+      ? "bg-rose-50"
+      : status === "check" || status === "unsure"
+      ? "bg-amber-50"
+      : status === "fill"
+      ? "bg-orange-50"
+      : "";
+
   return (
-    <li ref={itemRef} className={`py-3 border-b border-gray-200 last:border-b-0 ${dragging ? "opacity-50" : ""}`}>
+    <li ref={itemRef} className={`py-3 px-2 -mx-2 border-b border-gray-200 last:border-b-0 ${bgClass} ${dragging ? "opacity-50" : ""}`}>
       <div className="flex items-start gap-1">
         {editMode && <DragHandle {...dragHandleProps} />}
         <div className="flex-1">
           <div className="flex items-start justify-between gap-2">
             <span className="font-medium">{item.name}</span>
             <div className="flex items-center gap-2 shrink-0">
-              {options.length > 0 && (
+              <button
+                onClick={() => setShowPrep((s) => !s)}
+                aria-label="Prep instructions"
+                className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                  showPrep ? "bg-black text-white" : hasPrep ? "text-black" : "text-gray-300"
+                }`}
+              >
+                <BookIcon />
+              </button>
+              {editMode && <MeatballMenu onEdit={onEdit} onArchive={onArchive} />}
+            </div>
+          </div>
+          <div className={`grid ${options.length > 0 ? "grid-cols-4" : "grid-cols-3"} items-start divide-x divide-gray-200 mt-2`}>
+            <ParCell label="Upstairs" topLabel={<>↑ Up</>} wd={item.gf_par_wd} we={item.gf_par_we} unit={item.gf_unit} todayIsWE={todayIsWE} />
+            <ParCell label="Downstairs walk-in" topLabel={<>↓ Down</>} wd={item.bw_par_wd} we={item.bw_par_we} unit={item.bw_unit} todayIsWE={todayIsWE} />
+            <ParCell
+              label="Defrost needed"
+              topLabel={
+                <>
+                  <SnowflakeIcon size={10} /> Def
+                </>
+              }
+              wd={item.bd_par_wd}
+              we={item.bd_par_we}
+              unit={item.bd_unit}
+              todayIsWE={todayIsWE}
+            />
+            {options.length > 0 && (
+              <div className="flex items-center justify-center pt-3">
                 <select
                   value={status}
                   onChange={(e) => updateStatus(e.target.value)}
@@ -221,20 +316,32 @@ function StockRow({
                   <option value="">—</option>
                   {options.map((opt) => (
                     <option key={opt} value={opt}>
-                      {opt}
+                      {opt === "unsure" ? "check" : opt}
                     </option>
                   ))}
                 </select>
-              )}
-              {editMode && <MeatballMenu onEdit={onEdit} onArchive={onArchive} />}
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 mt-2">
-            <ParCell label="Upstairs" wd={item.gf_par_wd} we={item.gf_par_we} unit={item.gf_unit} todayIsWE={todayIsWE} />
-            <ParCell label="Downstairs walk-in" wd={item.bw_par_wd} we={item.bw_par_we} unit={item.bw_unit} todayIsWE={todayIsWE} />
-            <ParCell label="Defrost needed" wd={item.bd_par_wd} we={item.bd_par_we} unit={item.bd_unit} todayIsWE={todayIsWE} />
+              </div>
+            )}
           </div>
           {item.note && <p className="text-xs text-gray-500 italic mt-2">{item.note}</p>}
+          {showPrep && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-1">Prep instruction</div>
+              {item.prep_image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.prep_image}
+                  alt={`${item.name} prep`}
+                  className="w-full h-40 object-cover border border-black mb-2"
+                />
+              )}
+              {item.prep_note ? (
+                <div className="rich-text text-sm" dangerouslySetInnerHTML={{ __html: item.prep_note }} />
+              ) : (
+                !item.prep_image && <p className="text-sm text-gray-400">No prep instructions yet.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </li>
@@ -274,7 +381,7 @@ function Section({
         {order.map((item) =>
           editingId === item.id ? (
             <li key={item.id} className="py-2">
-              <StockForm initial={toForm(item)} onSave={(form) => { onUpdateItem(item.id, form); setEditingId(null); }} onCancel={() => setEditingId(null)} />
+              <StockForm itemId={item.id} initial={toForm(item)} onSave={(form) => { onUpdateItem(item.id, form); setEditingId(null); }} onCancel={() => setEditingId(null)} />
             </li>
           ) : (
             <StockRow
@@ -296,6 +403,7 @@ function Section({
         <div className="mt-3">
           {adding ? (
             <StockForm
+              itemId={`new-${section}-${Date.now()}`}
               initial={{ ...emptyForm, section }}
               lockSection
               onSave={(form) => { onAddItem(section, form); setAdding(false); }}
@@ -374,6 +482,12 @@ export default function StockPage() {
     return Array.from(map.entries());
   }, [items]);
 
+  function cleanHtml(html: string) {
+    const hasText = html.replace(/<[^>]*>/g, "").trim().length > 0;
+    const hasImage = html.includes("<img");
+    return hasText || hasImage ? html : null;
+  }
+
   function toRow(form: FormT) {
     return {
       section: form.section,
@@ -389,6 +503,8 @@ export default function StockPage() {
       bd_unit: form.bd_unit || null,
       closing_options: form.closing_options,
       note: form.note || null,
+      prep_note: cleanHtml(form.prep_note),
+      prep_image: form.prep_image || null,
     };
   }
 
@@ -450,6 +566,7 @@ export default function StockPage() {
         <div className="mt-4">
           {addingSection ? (
             <StockForm
+              itemId={`new-section-${Date.now()}`}
               initial={emptyForm}
               onSave={(form) => { addItem(form.section, form); setAddingSection(false); }}
               onCancel={() => setAddingSection(false)}

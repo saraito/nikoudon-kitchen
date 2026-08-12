@@ -28,6 +28,8 @@ create table if not exists stock_items (
   closing_options text not null default 'prep/fill/unsure',
   closing_status text not null default '',
   note text,
+  prep_note text,
+  prep_image text,
   is_archived boolean not null default false,
   sort_order int not null default 0,
   created_at timestamptz not null default now()
