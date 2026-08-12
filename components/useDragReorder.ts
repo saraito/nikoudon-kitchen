@@ -6,6 +6,11 @@ interface Sortable {
   id: string;
 }
 
+export interface DragHandleProps {
+  onPointerDown: (e: React.PointerEvent) => void;
+  style: { touchAction: "none" };
+}
+
 /**
  * Pointer-based drag-to-reorder for a single list. Call getHandleProps(item.id)
  * on the drag-handle element and setItemRef(item.id, el) on each row's root element.
@@ -30,7 +35,7 @@ export function useDragReorder<T extends Sortable>(
     else itemRefs.current.delete(id);
   }
 
-  function getHandleProps(id: string) {
+  function getHandleProps(id: string): DragHandleProps {
     return {
       onPointerDown: (e: React.PointerEvent) => {
         e.preventDefault();
