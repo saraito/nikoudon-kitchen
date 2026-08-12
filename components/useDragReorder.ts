@@ -54,7 +54,17 @@ export function useDragReorder<T extends Sortable>(
         setDraggingId(id);
         dragOrderRef.current = order;
 
+        function preventSelect(ev: Event) {
+          ev.preventDefault();
+        }
+        const prevBodyUserSelect = document.body.style.userSelect;
+        const prevBodyWebkitUserSelect = (document.body.style as any).webkitUserSelect;
+        document.body.style.userSelect = "none";
+        (document.body.style as any).webkitUserSelect = "none";
+        document.addEventListener("selectstart", preventSelect);
+
         function onMove(ev: PointerEvent) {
+          ev.preventDefault();
           const y = ev.clientY;
           const current = dragOrderRef.current;
           const dragged = current.find((i) => i.id === id);
@@ -77,6 +87,9 @@ export function useDragReorder<T extends Sortable>(
           document.removeEventListener("pointermove", onMove);
           document.removeEventListener("pointerup", onUp);
           document.removeEventListener("pointercancel", onUp);
+          document.removeEventListener("selectstart", preventSelect);
+          document.body.style.userSelect = prevBodyUserSelect;
+          (document.body.style as any).webkitUserSelect = prevBodyWebkitUserSelect;
           try {
             handle.releasePointerCapture(e.pointerId);
           } catch {
