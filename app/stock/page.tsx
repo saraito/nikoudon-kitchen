@@ -352,6 +352,7 @@ function Section({
   section,
   items,
   todayIsWE,
+  flaggedOnly,
   onAddItem,
   onUpdateItem,
   onSetArchived,
@@ -360,6 +361,7 @@ function Section({
   section: string;
   items: StockItem[];
   todayIsWE: boolean;
+  flaggedOnly: boolean;
   onAddItem: (section: string, form: FormT) => void;
   onUpdateItem: (id: string, form: FormT) => void;
   onSetArchived: (id: string, value: boolean) => void;
@@ -374,11 +376,12 @@ function Section({
   const archived = useMemo(() => items.filter((i) => i.is_archived), [items]);
 
   const { order, draggingId, setItemRef, getHandleProps } = useDragReorder(active, onReorder);
+  const visible = flaggedOnly ? order.filter((i) => i.closing_status) : order;
 
-  return (
-    <Accordion key={section} title={section} subtitle={`${active.length} items`} defaultOpen={editMode}>
+  const content = (
+    <>
       <ul>
-        {order.map((item) =>
+        {visible.map((item) =>
           editingId === item.id ? (
             <li key={item.id} className="py-2">
               <StockForm itemId={item.id} initial={toForm(item)} onSave={(form) => { onUpdateItem(item.id, form); setEditingId(null); }} onCancel={() => setEditingId(null)} />
@@ -445,6 +448,24 @@ function Section({
           )}
         </div>
       )}
+    </>
+  );
+
+  if (flaggedOnly) {
+    return (
+      <div className="border border-black mb-3">
+        <div className="px-4 py-3">
+          <span className="font-medium">{section}</span>
+          <span className="block text-xs text-gray-500 mt-0.5">{visible.length} to check</span>
+        </div>
+        <div className="px-4 pb-4 border-t border-gray-200">{content}</div>
+      </div>
+    );
+  }
+
+  return (
+    <Accordion key={section} title={section} subtitle={`${active.length} items`} defaultOpen={editMode}>
+      {content}
     </Accordion>
   );
 }
@@ -454,6 +475,7 @@ export default function StockPage() {
   const [items, setItems] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingSection, setAddingSection] = useState(false);
+  const [flaggedOnly, setFlaggedOnly] = useState(false);
   const todayIsWE = useMemo(() => isWeekend(new Date().getDay()), []);
   const todayLabel = useMemo(() => {
     const d = new Date();
@@ -481,6 +503,11 @@ export default function StockPage() {
     }
     return Array.from(map.entries());
   }, [items]);
+
+  const visibleSections = useMemo(() => {
+    if (!flaggedOnly || editMode) return sections;
+    return sections.filter(([, sectionItems]) => sectionItems.some((i) => !i.is_archived && i.closing_status));
+  }, [sections, flaggedOnly, editMode]);
 
   function cleanHtml(html: string) {
     const hasText = html.replace(/<[^>]*>/g, "").trim().length > 0;
@@ -544,17 +571,39 @@ export default function StockPage() {
           {todayIsWE ? "Thu–Sat prep day" : "Sunday/weekdays prep day"}
         </span>
       </div>
+
+      {!editMode && (
+        <div className="flex border border-black mb-3 text-sm">
+          <button
+            onClick={() => setFlaggedOnly(false)}
+            className={`flex-1 py-1.5 ${!flaggedOnly ? "bg-black text-white" : "text-gray-500"}`}
+          >
+            All items
+          </button>
+          <button
+            onClick={() => setFlaggedOnly(true)}
+            className={`flex-1 py-1.5 border-l border-black ${flaggedOnly ? "bg-black text-white" : "text-gray-500"}`}
+          >
+            Prep list
+          </button>
+        </div>
+      )}
+
       {loading && <p className="text-sm text-gray-500">Loading…</p>}
       {!loading && sections.length === 0 && !editMode && (
         <p className="text-sm text-gray-500">No stock items yet.</p>
       )}
+      {!loading && flaggedOnly && !editMode && visibleSections.length === 0 && sections.length > 0 && (
+        <p className="text-sm text-gray-500">Nothing flagged — every section is clear.</p>
+      )}
 
-      {sections.map(([section, sectionItems]) => (
+      {visibleSections.map(([section, sectionItems]) => (
         <Section
           key={section}
           section={section}
           items={sectionItems}
           todayIsWE={todayIsWE}
+          flaggedOnly={flaggedOnly && !editMode}
           onAddItem={addItem}
           onUpdateItem={updateItem}
           onSetArchived={setArchived}

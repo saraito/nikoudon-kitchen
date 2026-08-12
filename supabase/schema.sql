@@ -25,7 +25,7 @@ create table if not exists stock_items (
   bd_par_wd text,
   bd_par_we text,
   bd_unit text,
-  closing_options text not null default 'prep/fill/unsure',
+  closing_options text not null default 'prep/fill/check',
   closing_status text not null default '',
   note text,
   prep_note text,

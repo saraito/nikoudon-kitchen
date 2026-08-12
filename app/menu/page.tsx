@@ -58,6 +58,23 @@ function DishImage({ path, name }: { path: string | null; name: string }) {
   );
 }
 
+function DishThumb({ path, name }: { path: string | null; name: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!path || failed) {
+    return <div className="w-11 h-11 shrink-0 bg-gray-100 border border-gray-300" />;
+  }
+  const src = path.startsWith("http") ? path : `/${path}`;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={name}
+      onError={() => setFailed(true)}
+      className="w-11 h-11 shrink-0 object-cover border border-black"
+    />
+  );
+}
+
 function DishForm({
   dishId,
   categories,
@@ -150,6 +167,7 @@ function DishView({
 }) {
   return (
     <Accordion
+      leading={<DishThumb path={dish.image_path} name={dish.name} />}
       headerActions={headerActions}
       title={
         <span>
@@ -379,7 +397,7 @@ export default function MenuPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xs uppercase tracking-widest text-gray-400 mb-3">Eetkaart — Menu</h1>
+      <h1 className="text-xs uppercase tracking-widest text-gray-400 mb-3">Eetkaart — Recipe</h1>
       {loading && <p className="text-sm text-gray-500">Loading…</p>}
       {!loading && categories.length === 0 && !editMode && (
         <p className="text-sm text-gray-500">No menu categories yet.</p>
