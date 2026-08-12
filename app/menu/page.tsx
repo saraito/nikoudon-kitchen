@@ -397,7 +397,7 @@ export default function MenuPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xs uppercase tracking-widest text-gray-400 mb-3">Eetkaart — Recipe</h1>
+      <h1 className="text-xs uppercase tracking-widest text-gray-400 mb-3">Eetkaart — Operation</h1>
       {loading && <p className="text-sm text-gray-500">Loading…</p>}
       {!loading && categories.length === 0 && !editMode && (
         <p className="text-sm text-gray-500">No menu categories yet.</p>
