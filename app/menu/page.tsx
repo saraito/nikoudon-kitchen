@@ -117,12 +117,12 @@ function DishForm({
         />
       </div>
       <div>
-        <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">Prep instructions</div>
+        <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">Note</div>
         <RichTextEditor
           uploadId={dishId}
           value={form.prep}
           onChange={(html) => set("prep", html)}
-          placeholder="Prep instructions"
+          placeholder="Note"
         />
       </div>
       <div className="flex gap-2">
@@ -182,9 +182,10 @@ function DishView({
           </div>
         )}
         {dish.prep && (
-          <Accordion title="Prep instructions">
-            <div className="rich-text text-sm pt-2" dangerouslySetInnerHTML={{ __html: dish.prep }} />
-          </Accordion>
+          <div className="mb-3 mt-3">
+            <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">Note</div>
+            <div className="rich-text text-sm" dangerouslySetInnerHTML={{ __html: dish.prep }} />
+          </div>
         )}
       </div>
     </Accordion>
