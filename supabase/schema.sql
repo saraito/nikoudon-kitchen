@@ -93,3 +93,12 @@ create policy "public update dish-images" on storage.objects for update using (b
 
 drop policy if exists "public delete dish-images" on storage.objects;
 create policy "public delete dish-images" on storage.objects for delete using (bucket_id = 'dish-images');
+
+-- Live sync: push stock_items changes to every connected Stock Check tab
+-- so the Prep list stays current as other staff update statuses.
+do $$
+begin
+  alter publication supabase_realtime add table stock_items;
+exception when duplicate_object then
+  null;
+end $$;

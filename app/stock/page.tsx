@@ -242,6 +242,7 @@ function StockRow({
   dragging,
   onEdit,
   onArchive,
+  onStatusChange,
 }: {
   item: StockItem;
   todayIsWE: boolean;
@@ -251,16 +252,12 @@ function StockRow({
   dragging: boolean;
   onEdit: () => void;
   onArchive: () => void;
+  onStatusChange: (value: string) => void;
 }) {
-  const [status, setStatus] = useState(item.closing_status || "");
   const [showPrep, setShowPrep] = useState(false);
   const options = item.closing_options ? item.closing_options.split("/").map((s) => s.trim()) : [];
   const hasPrep = !!(item.prep_note || item.prep_image);
-
-  async function updateStatus(value: string) {
-    setStatus(value);
-    await supabase.from("stock_items").update({ closing_status: value }).eq("id", item.id);
-  }
+  const status = item.closing_status || "";
 
   const bgClass =
     status === "prep" || status === "buy"
@@ -310,7 +307,7 @@ function StockRow({
               <div className="flex items-center justify-center pt-3">
                 <select
                   value={status}
-                  onChange={(e) => updateStatus(e.target.value)}
+                  onChange={(e) => onStatusChange(e.target.value)}
                   className="border border-black text-xs px-1 py-1"
                 >
                   <option value="">—</option>
@@ -356,6 +353,7 @@ function Section({
   onAddItem,
   onUpdateItem,
   onSetArchived,
+  onStatusChange,
   onReorder,
 }: {
   section: string;
@@ -365,6 +363,7 @@ function Section({
   onAddItem: (section: string, form: FormT) => void;
   onUpdateItem: (id: string, form: FormT) => void;
   onSetArchived: (id: string, value: boolean) => void;
+  onStatusChange: (id: string, value: string) => void;
   onReorder: (reordered: StockItem[]) => void;
 }) {
   const { editMode } = useEditMode();
@@ -397,6 +396,7 @@ function Section({
               dragging={draggingId === item.id}
               onEdit={() => setEditingId(item.id)}
               onArchive={() => onSetArchived(item.id, true)}
+              onStatusChange={(value) => onStatusChange(item.id, value)}
             />
           )
         )}
@@ -493,6 +493,15 @@ export default function StockPage() {
 
   useEffect(() => {
     load();
+    const channel = supabase
+      .channel("stock_items_live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "stock_items" }, () => {
+        load();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const sections = useMemo(() => {
@@ -551,6 +560,11 @@ export default function StockPage() {
     await supabase.from("stock_items").update({ is_archived: value }).eq("id", id);
   }
 
+  async function updateStatus(id: string, value: string) {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, closing_status: value } : i)));
+    await supabase.from("stock_items").update({ closing_status: value }).eq("id", id);
+  }
+
   async function reorderSection(sectionItems: StockItem[], reordered: StockItem[]) {
     const sortValues = sectionItems.filter((i) => !i.is_archived).map((i) => i.sort_order).sort((a, b) => a - b);
     const updates = reordered.map((item, idx) => ({ id: item.id, sort_order: sortValues[idx] }));
@@ -594,7 +608,7 @@ export default function StockPage() {
         <p className="text-sm text-gray-500">No stock items yet.</p>
       )}
       {!loading && flaggedOnly && !editMode && visibleSections.length === 0 && sections.length > 0 && (
-        <p className="text-sm text-gray-500">Nothing flagged — every section is clear.</p>
+        <p className="text-sm text-gray-500">Nothing to prep for now.</p>
       )}
 
       {visibleSections.map(([section, sectionItems]) => (
@@ -607,6 +621,7 @@ export default function StockPage() {
           onAddItem={addItem}
           onUpdateItem={updateItem}
           onSetArchived={setArchived}
+          onStatusChange={updateStatus}
           onReorder={(reordered) => reorderSection(sectionItems, reordered)}
         />
       ))}
